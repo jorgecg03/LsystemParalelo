@@ -20,7 +20,7 @@ struct Lsystem
 	char*	name;        // Nombre del sistema
 	char*	axiom;       // Axioma o cadena base
 	Rule*	rules;       // Reglas de producción (lista enlazada)
-	int	linelen;     // Longitud de cada segmento dibujado
+	int	linelen;         // Longitud de cada segmento dibujado
 	double	initangle;   // Ángulo inicial del cursor
 	double	leftangle;   // Rotación hacia la izquierda
 	double	rightangle;  // Rotación hacia la derecha
@@ -43,7 +43,7 @@ struct Rule
  * Representa el estado del cursor en el dibujo.
  *
  * Se utiliza como una pila para manejar ramificaciones.
- * Guarda la posición (x, y) y el ángulo (α).
+ * Guarda la posición (x, y) y el ángulo.
  */
 struct State
 {
@@ -55,10 +55,6 @@ struct State
 
 /**
  * emalloc - Envoltorio de malloc que aborta si falla.
- *
- * @size: número de bytes a asignar.
- * @return: puntero a la memoria asignada.
- *
  * Similar a malloc, pero garantiza que el programa terminará si no hay memoria.
  */
 void* emalloc(size_t size);

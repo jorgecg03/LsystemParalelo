@@ -1,7 +1,3 @@
-// #include <u.h>
-// #include <libc.h>
-// #include <ctype.h>
-// #include <bio.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -40,12 +36,14 @@ Lsystem* parse(char *filename) {
     FILE *fp;
     char *s, c;
 
+    // Abrir el archivo de entrada
     fp = fopen(filename, "r");
     if (fp == NULL) {
         perror("fopen");
         exit(1);
     }
 
+    // Reservar memoria para el sistema L
     ls = emalloc(sizeof(Lsystem));
 
     while (1) {
@@ -55,22 +53,22 @@ Lsystem* parse(char *filename) {
             free(s);
             break;
         }
-
-        if (strcmp(s, "name") == 0) {
+        // Análisis del contenido del archivo dependiendo del token leído
+        if (strcmp(s, "name") == 0) { // Leer nombre del sistema
             free(s);
             skipws(fp);
             ls->name = readstring(fp);
 
-        } else if (strcmp(s, "axiom") == 0) {
+        } else if (strcmp(s, "axiom") == 0) { // Leer axioma inicial
             free(s);
             skipws(fp);
             ls->axiom = next(fp);
 
-        } else if (strcmp(s, "rule") == 0) {
+        } else if (strcmp(s, "rule") == 0) { // Leer regla
             free(s);
             skipws(fp);
             s = next(fp);
-            c = s[0];
+            c = s[0]; // Leer el símbolo predicado
             free(s);
             skipws(fp);
             s = next(fp);
@@ -80,33 +78,33 @@ Lsystem* parse(char *filename) {
             }
             free(s);
             skipws(fp);
-            s = next(fp);
-            r = mkrule(c, s);
-            r->next = ls->rules;
-            ls->rules = r;
+            s = next(fp); // Leer el sucesor de la regla
+            r = mkrule(c, s); // Crear la regla
+            r->next = ls->rules; //Enlaza la nueva regla con el resto de la lista
+            ls->rules = r;// Insertarla al inicio de la lista de reglas
 
-        } else if (strcmp(s, "line-length") == 0) {
+        } else if (strcmp(s, "line-length") == 0) {// Leer longitud de línea
             free(s);
             skipws(fp);
             s = readnumber(fp, 0);
             ls->linelen = atoi(s);
             free(s);
 
-        } else if (strcmp(s, "initial-angle") == 0) {
+        } else if (strcmp(s, "initial-angle") == 0) {// Leer ángulo inicial
             free(s);
             skipws(fp);
             s = readnumber(fp, 1);
             ls->initangle = atof(s);
             free(s);
 
-        } else if (strcmp(s, "left-angle") == 0) {
+        } else if (strcmp(s, "left-angle") == 0) {// Leer ángulo de giro a la izquierda
             free(s);
             skipws(fp);
             s = readnumber(fp, 1);
             ls->leftangle = atof(s);
             free(s);
 
-        } else if (strcmp(s, "right-angle") == 0) {
+        } else if (strcmp(s, "right-angle") == 0) {// Leer ángulo de giro a la derecha
             free(s);
             skipws(fp);
             s = readnumber(fp, 1);
@@ -118,7 +116,7 @@ Lsystem* parse(char *filename) {
             exit(1);
         }
     }
-
+    // Verificaciones finales para asegurar que el sistema esté completo
     if (ls->name == NULL)
         fprintf(stderr, "missing lsystem name\n"), exit(1);
     if (ls->axiom == NULL)
@@ -228,7 +226,7 @@ char* readstring(FILE *f) {
  *
  * @f: Puntero al búfer.
  * @real: Si es 1, permite punto decimal.
- * @return: Cadena con el número leída.
+ * @return: Cadena con el número leído.
  */
 
 
