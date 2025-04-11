@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
     ls = parse(argv[1]);		// Parsea el archivo L-system
     curgen = strdup(ls->axiom);	// Copia el axioma como cadena inicial
 
-    for(int i=1; i<it; i++){
+    for(int i=1; i<=it; i++){
         gettimeofday(&inicio, NULL);// Registrar tiempo inicial
         nextgen();
         gettimeofday(&fin, NULL);   // Registrar tiempo final

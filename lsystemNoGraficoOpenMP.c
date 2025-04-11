@@ -35,43 +35,51 @@ char* production(char c) {
  * Reemplaza cada símbolo de la cadena actual usando las reglas de producción.
  */
 void nextgen(int threads) {
+    // Calcula la longitud de la generación actual
     size_t len = strlen(curgen);
+
+    // Reserva un array de buffers, uno por cada hilo, para construir su parte de la nueva generación
     char **buffers = calloc(threads, sizeof(char*));
     for (int i = 0; i < threads; i++)
         buffers[i] = calloc(1024 * len / threads + 1, sizeof(char));
 
+    // Sección paralela: cada hilo procesa una parte de la cadena
     #pragma omp parallel num_threads(threads)
     {
-        int tid = omp_get_thread_num();
-        size_t chunk = len / threads;
-        size_t start = tid * chunk;
-        size_t end = (tid == threads - 1) ? len : start + chunk;
+        int tid = omp_get_thread_num(); // ID del hilo
+        size_t chunk = len / threads;   // Tamaño del fragmento a procesar por hilo
+        size_t start = tid * chunk;     // Índice de inicio
+        size_t end = (tid == threads - 1) ? len : start + chunk; // Índice de fin
 
+        // Itera sobre su fragmento y aplica reglas de producción
         for (size_t i = start; i < end; i++) {
             char c = curgen[i];
-            char *prod = production(c);
+            char *prod = production(c); // Busca producción para el carácter actual
             if (prod)
-                strcat(buffers[tid], prod);
+                strcat(buffers[tid], prod); // Si hay producción, la concatena al buffer
             else {
-                size_t l = strlen(buffers[tid]);
+                size_t l = strlen(buffers[tid]); // Si no hay, copia el carácter tal cual
                 buffers[tid][l] = c;
                 buffers[tid][l + 1] = '\0';
             }
         }
     }
 
+    // Une todos los buffers en uno solo (secuencial)
     char *newgen = emalloc(1024 * len);
     newgen[0] = '\0';
     for (int i = 0; i < threads; i++) {
         strcat(newgen, buffers[i]);
-        free(buffers[i]);
+        free(buffers[i]); // Libera el buffer individual
     }
-    free(buffers);
+    free(buffers); // Libera el array de buffers
 
+    // Libera la generación anterior y actualiza curgen con la nueva
     free(curgen);
     curgen = strdup(newgen);
     free(newgen);
 }
+
 
 int main(int argc, char *argv[]) {
     if (argc != 4) {
@@ -86,7 +94,7 @@ int main(int argc, char *argv[]) {
     ls = parse(argv[1]);		// Parsea el archivo L-system
     curgen = strdup(ls->axiom);	// Copia el axioma como cadena inicial
 
-    for(int i=1; i<it; i++){
+    for(int i=1; i<=it; i++){
         gettimeofday(&inicio, NULL);// Registrar tiempo inicial
         nextgen(threads);
         gettimeofday(&fin, NULL);   // Registrar tiempo final
